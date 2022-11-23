@@ -7,9 +7,20 @@ import Skeleton from "../components/PizzaBlock/Skeleton";
 const Home = () => {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [categoryId, setCategoryId] = useState(0);
+  const [sortType, setSortType] = useState({
+    name: "популярности",
+    sortProps: "rating",
+  });
   useEffect(() => {
-    fetch("https://6373ef27716c2e19165485e9.mockapi.io/items")
+    setIsLoading(true);
+    const order = sortType.sortProps.includes("-") ? "asc" : "desc";
+    const sortBy = sortType.sortProps.replace("-", "");
+    const category = categoryId > 0 ? `category=${categoryId}` : "";
+
+    fetch(
+      `https://6373ef27716c2e19165485e9.mockapi.io/items?${category}&sortBy=${sortBy}&order=${order}`
+    )
       .then((res) => {
         return res.json();
       })
@@ -18,12 +29,17 @@ const Home = () => {
         setIsLoading(false);
       });
     window.scrollTo(0, 0);
-  }, []);
+  }, [categoryId, sortType]);
+
+  console.log("sort", sortType);
   return (
     <div className="container">
       <div className="content__top">
-        <Categories />
-        <Sort />
+        <Categories
+          value={categoryId}
+          OnClickCategory={(i) => setCategoryId(i)}
+        />
+        <Sort value={sortType} onClickSortType={(i) => setSortType(i)} />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
